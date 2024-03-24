@@ -31,7 +31,7 @@ app.use(cookieParser());
 // Enable Cross-Origin Resource Sharing (CORS) for all routes
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://trenova-client.vercel.app",
     credentials: true, //access-control-allow-credentials:true
     optionSuccessStatus: 200,
   })
