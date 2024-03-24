@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const morgan = require("morgan");
+// const morgan = require("morgan");
 const mongoSanitize = require("express-mongo-sanitize");
 const cookieParser = require("cookie-parser");
 const AppError = require("./utils/appError");
@@ -42,9 +42,9 @@ app.use(mongoSanitize());
 
 // Log HTTP requests in the console in the "dev" format
 // Development logging
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-}
+// if (process.env.NODE_ENV === "development") {
+//   app.use(morgan("dev"));
+// }
 
 // API routes
 // app.use('*', [RequestLogger.reqLog, Auth.checks, SchemaValidator.validate]);
