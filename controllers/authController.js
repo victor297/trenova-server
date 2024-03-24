@@ -82,6 +82,7 @@ const protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
   let token;
   console.log("token", req.cookies.jwt);
+  console.log("tokencokkie", req.cookies);
 
   if (
     req.headers.authorization &&
