@@ -5,6 +5,7 @@ const learnerSchema = new mongoose.Schema({
   age: { type: Number, required: true },
   class: { type: String, required: true },
   username: { type: String, required: true, unique: true },
+  profileImg: { type: String },
   schoolID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
