@@ -6,6 +6,7 @@ const AppError = require("../utils/appError");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const APIFeatures = require("../utils/apiFeature");
+const cron = require("node-cron");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -137,6 +138,100 @@ const protect = catchAsync(async (req, res, next) => {
   next();
 });
 
+// const now = new Date();
+// const nextRunTime = new Date(now.getTime() + 30 * 60000); // Add 30 minutes in milliseconds
+
+// Schedule the task to run in the next 30 minutes
+// const cronSchedule = `${nextRunTime.getMinutes()} ${nextRunTime.getHours()} * * *`;
+
+// Schedule the task to run annually on January 1st
+cron.schedule("0 0 30 8 *", async () => {
+  // Runs at midnight on January 1st
+  try {
+    // Retrieve all learners from the database
+    const allLearners = await Learner.find();
+
+    // Iterate through each learner and update their class
+    allLearners.forEach(async (learner) => {
+      // Determine the promotion logic based on the current class
+      switch (learner.class) {
+        case "KG 1":
+          learner.class = "KG 2";
+          break;
+        case "KG 2":
+          learner.class = "Nursery 1";
+          break;
+        case "Nursery 1":
+          learner.class = "Nursery 2";
+          break;
+        case "Nursery 2":
+          learner.class = "Grade 1";
+          break;
+        case "Grade 1":
+          learner.class = "Grade 2";
+          break;
+        case "Grade 2":
+          learner.class = "Grade 3";
+          break;
+        case "Grade 3":
+          learner.class = "Grade 4";
+          break;
+        case "Grade 4":
+          learner.class = "Grade 5";
+          break;
+        case "Grade 5":
+          learner.class = "Grade 6";
+          break;
+        case "Grade 6":
+          learner.class = "JSS 1";
+          break;
+        case "JSS 1":
+          learner.class = "JSS 2";
+          break;
+        case "JSS 2":
+          learner.class = "JSS 3";
+          break;
+        case "JSS 3":
+          learner.class = "SSS 1";
+          break;
+        case "SSS 1":
+          learner.class = "SSS 2";
+          break;
+        case "SSS 2":
+          learner.class = "SSS 3";
+          break;
+        // No promotion for SSS 3
+        default:
+          // No promotion for other classes
+          break;
+      }
+
+      await learner.save();
+    });
+
+    console.log("All learners promoted successfully!");
+  } catch (err) {
+    console.error("Error promoting learners:", err);
+  }
+});
+
+cron.schedule("0 0 1 1 *", async () => {
+  // Runs at midnight on January 1st
+  try {
+    // Retrieve all learners from the database
+    const allLearners = await Learner.find();
+
+    // Iterate through each learner and increment their age by 1
+    allLearners.forEach(async (learner) => {
+      learner.age += 1;
+      await learner.save();
+    });
+
+    console.log("All learners' ages incremented successfully!");
+  } catch (err) {
+    console.error("Error incrementing ages:", err);
+  }
+});
 // Create operation
 // const createLearner = catchAsync(async (req, res, next) => {
 //   const newLearner = await Learner.create(req.body);
@@ -188,14 +283,23 @@ const getLearnerById = catchAsync(async (req, res, next) => {
 
 // Update operation
 const updateLearner = catchAsync(async (req, res, next) => {
+  // Check if the password field is empty or has an empty string
+  if (req.body.password === "" || req.body.password === null) {
+    // If password field is empty, remove it from the req.body object
+    delete req.body.password;
+  }
+
+  // Update the remaining field and other fields except for password
   const updatedLearner = await Learner.findByIdAndUpdate(
     req.params.id,
-    req.body,
+    { $set: { remaining: req.body.remaining, ...req.body } }, // Update remaining and other fields
     { new: true }
   );
+
   if (!updatedLearner) {
     return next(new AppError("Learner not found", 404));
   }
+
   res.status(200).json({
     status: "success",
     data: updatedLearner,
