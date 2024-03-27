@@ -22,7 +22,7 @@ class APIFeatures {
   //   excludedFields.forEach((el) => delete queryObject[el]);
 
   //   // Create separate conditions for admin and other schools
-  //   const adminCondition = { school: "65e3614f928b5ff87f987b44" };
+  //   const adminCondition = { school: "6603e6e06e7e286c38da1ea1" };
   //   const otherCondition = { ...queryObject };
 
   //   // Combine conditions using $or operator
@@ -45,7 +45,7 @@ class APIFeatures {
     // Include additional conditions for admin
     const adminCondition = {
       ...queryObject,
-      school: "65e3614f928b5ff87f987b44",
+      school: "6603e6e06e7e286c38da1ea1",
     };
     // Advanced Filtering
     let queryStr = JSON.stringify({ $or: [adminCondition, otherCondition] });
