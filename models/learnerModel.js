@@ -11,6 +11,7 @@ const learnerSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  maxDevice: { type: Number, required: true, default: 0 },
   role: {
     type: String,
     required: true,

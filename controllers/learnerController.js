@@ -78,19 +78,52 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect username or password", 401));
   }
   if (!learner || !learner.isActivated) {
-    return next(new AppError("Account Deactivated contact schoolAdmin", 401));
+    return next(new AppError("Account Deactivated contact school Admin", 401));
   }
+  // 3) If everything ok, send token to client
+  if (!learner || learner.maxDevice === 2) {
+    return next(
+      new AppError(
+        "You can only login on 2 device kindly contact school Admin",
+        401
+      )
+    );
+  }
+  learner.maxDevice += 1;
+  await learner.save();
   // 3) If everything ok, send token to client
   createSendToken(learner, 200, req, res);
 });
 
-const logout = (req, res) => {
-  console.log("hi");
-  res.cookie("jwt", "loggedout", {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true,
-  });
-  res.status(200).json({ status: "success" });
+const logout = async (req, res) => {
+  try {
+    const learnerId = req.params.id;
+    console.log("learnerId", learnerId);
+    // Find the learner by ID and update the maxDevice property
+    const updatedLearner = await Learner.findByIdAndUpdate(
+      learnerId,
+      { $inc: { maxDevice: -1 } }, // Decrement maxDevice by 1
+      { new: true }
+    );
+
+    if (!updatedLearner) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "Learner not found" });
+    }
+
+    if (updatedLearner.maxDevice < 0) {
+      updatedLearner.maxDevice = 0;
+      await updatedLearner.save();
+    }
+
+    // Clear the JWT cookie to log the user out
+    res.clearCookie("jwt");
+    res.status(200).json({ status: "success" });
+  } catch (error) {
+    console.error("Error logging out:", error);
+    res.status(500).json({ status: "error", message: "Internal server error" });
+  }
 };
 
 const protect = catchAsync(async (req, res, next) => {
