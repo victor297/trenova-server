@@ -17,7 +17,7 @@ const courseSchema = new mongoose.Schema({
   isPublish: {
     type: Boolean,
     required: true,
-    default: false,
+    default: true,
   },
   content: [
     {
