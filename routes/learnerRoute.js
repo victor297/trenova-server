@@ -21,7 +21,7 @@ router.get("/logout/:id", logout);
 router.get("/", getAllLearners);
 router.get("/topschools", getTopUsersWithLearners);
 router.get("/:id", getLearnerById);
-router.patch("profile/:id", updateProfile);
+router.patch("/profile/:id", updateProfile);
 router.use(protect);
 router.patch("/:id", updateLearner);
 router.delete("/:id", deleteLearner);
