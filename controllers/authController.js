@@ -38,7 +38,6 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 const signup = catchAsync(async (req, res, next) => {
-  console.log(req.body);
   const newUser = await User.create(req.body);
   const otp = otpGenerator.generate(8, {
     upperCase: false,
@@ -84,19 +83,19 @@ const logout = (req, res) => {
 const protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
   let token;
-  console.log("token", req.cookies.jwt);
-  console.log("tokencokkie", req.cookies);
-  console.log("Reqcokkie", req);
+  // console.log("token", req.cookies.jwt);
+  // console.log("tokencokkie", req.cookies);
+  // console.log("Reqcokkie", req);
 
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
-    console.log("token", req.cookies.jwt);
+    // console.log("token", req.cookies.jwt);
 
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies.jwt) {
-    console.log("token1", req.cookies.jwt);
+    // console.log("token1", req.cookies.jwt);
     token = req.cookies.jwt;
   }
 
@@ -177,7 +176,7 @@ const resetPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({
     email,
   });
-  console.log("user", user);
+  // console.log("user", user);
   if (user.passwordResetAttempts >= 3) {
     return next(
       new AppError(
@@ -226,7 +225,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
 });
 
 const users = catchAsync(async (req, res, next) => {
-  console.log("users", req.user);
+  // console.log("users", req.user);
   const users = await User.find();
   res.status(200).json({
     users,
@@ -248,8 +247,8 @@ const user = catchAsync(async (req, res, next) => {
 
 // Update operation
 const updateUser = catchAsync(async (req, res, next) => {
-  console.log("req.params.id)", req.params.id);
-  console.log("req.body", req.body);
+  // console.log("req.params.id)", req.params.id);
+  // console.log("req.body", req.body);
   try {
     const user = await User.findById(req.params.id);
 

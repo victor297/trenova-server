@@ -10,6 +10,9 @@ const User = require("../models/userModel");
 const createCourse = catchAsync(async (req, res, next) => {
   const courseData = req.body;
   console.log(courseData);
+  if (req?.user?.role === "admin") {
+    req.body.school = "6603e6e06e7e286c38da1ea1";
+  }
   try {
     const session = await mongoose.startSession();
     session.startTransaction();

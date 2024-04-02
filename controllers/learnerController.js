@@ -338,6 +338,23 @@ const updateLearner = catchAsync(async (req, res, next) => {
     data: updatedLearner,
   });
 });
+const updateProfile = catchAsync(async (req, res, next) => {
+  // Update the remaining field and other fields except for password
+  const updatedLearner = await Learner.findByIdAndUpdate(
+    req.params.id,
+    { $set: { remaining: req.body.remaining, ...req.body } }, // Update remaining and other fields
+    { new: true }
+  );
+
+  if (!updatedLearner) {
+    return next(new AppError("Learner not found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: updatedLearner,
+  });
+});
 
 // Delete operation
 const deleteLearner = catchAsync(async (req, res, next) => {
@@ -392,6 +409,7 @@ module.exports = {
   deleteLearner,
   // createLearner,
   getTopUsersWithLearners,
+  updateProfile,
   getAllLearners,
   getLearnerById,
   updateLearner,
