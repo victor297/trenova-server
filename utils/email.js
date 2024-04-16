@@ -5,7 +5,7 @@ module.exports = class Email {
     this.to = user.email;
     this.firstName = user.name.split(" ")[0];
     this.resetToken = resetToken;
-    this.from = `Trenova Support official`;
+    this.from = `Trenova Support <noreply@example.com>`; // Use a generic or noreply email
   }
 
   newTransport() {
@@ -17,6 +17,7 @@ module.exports = class Email {
       },
     });
   }
+
   // Send the actual email
   async send(subject, template) {
     const mailOptions = {
