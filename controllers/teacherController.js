@@ -38,7 +38,6 @@ const createSendToken = (teacher, statusCode, req, res) => {
 };
 
 const signup = catchAsync(async (req, res, next) => {
-  console.log("users", req.user);
   req.body.schoolID = req.user._id;
 
   const newTeacher = await Teacher.create(req.body);
@@ -58,7 +57,6 @@ const login = catchAsync(async (req, res, next) => {
   }
   // 2) Check if teacher exists && password is correct
   const teacher = await Teacher.findOne({ username }).select("+password");
-  console.log("check password", teacher);
   if (!teacher || !(password === teacher.password)) {
     return next(new AppError("Incorrect username or password", 401));
   }

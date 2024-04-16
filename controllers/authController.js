@@ -44,7 +44,6 @@ const signup = catchAsync(async (req, res, next) => {
     specialChars: false,
   });
   const url = `${req.protocol}://${req.get("host")}/me`;
-  // console.log(url);
   await new Email(newUser, url).sendWelcome();
 
   createSendToken(newUser, 201, req, res);
@@ -59,7 +58,6 @@ const login = catchAsync(async (req, res, next) => {
   }
   // 2) Check if user exists && password is correct
   const user = await User.findOne({ username }).select("+password");
-  console.log("check password", user);
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect username or password", 401));
   }
@@ -83,19 +81,12 @@ const logout = (req, res) => {
 const protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
   let token;
-  // console.log("token", req.cookies.jwt);
-  // console.log("tokencokkie", req.cookies);
-  // console.log("Reqcokkie", req);
-
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
-    // console.log("token", req.cookies.jwt);
-
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies.jwt) {
-    // console.log("token1", req.cookies.jwt);
     token = req.cookies.jwt;
   }
 
@@ -136,12 +127,9 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on POSTed email
   const user = await User.findOne({
     email: req.body.email,
-    client: req.body.client,
   });
   if (!user) {
-    return next(
-      new AppError("There is no user with email address and client name.", 404)
-    );
+    return next(new AppError("There is no user with email address", 404));
   }
   // 2) Generate the random reset token
   const resetToken = user.createPasswordResetToken();
@@ -174,9 +162,8 @@ const resetPassword = catchAsync(async (req, res, next) => {
     .digest("hex");
 
   const user = await User.findOne({
-    email,
+    email: email,
   });
-  // console.log("user", user);
   if (user.passwordResetAttempts >= 3) {
     return next(
       new AppError(
@@ -225,7 +212,6 @@ const updatePassword = catchAsync(async (req, res, next) => {
 });
 
 const users = catchAsync(async (req, res, next) => {
-  // console.log("users", req.user);
   const users = await User.find();
   res.status(200).json({
     users,
@@ -247,8 +233,6 @@ const user = catchAsync(async (req, res, next) => {
 
 // Update operation
 const updateUser = catchAsync(async (req, res, next) => {
-  // console.log("req.params.id)", req.params.id);
-  // console.log("req.body", req.body);
   try {
     const user = await User.findById(req.params.id);
 

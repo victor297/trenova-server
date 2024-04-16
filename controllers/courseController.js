@@ -9,7 +9,6 @@ const User = require("../models/userModel");
 // Create operation
 const createCourse = catchAsync(async (req, res, next) => {
   const courseData = req.body;
-  console.log(courseData);
   if (req?.user?.role === "admin") {
     req.body.school = "6603e6e06e7e286c38da1ea1";
   }
@@ -55,7 +54,6 @@ const createCourse = catchAsync(async (req, res, next) => {
 
 // Read operation - Get all courses
 const getAllCourses = catchAsync(async (req, res, next) => {
-  console.log("req", req.query);
   try {
     // Initialize APIFeatures with the Course model's query and the request's query string
     const features = new APIFeatures(Course.find(), req.query)
@@ -66,7 +64,6 @@ const getAllCourses = catchAsync(async (req, res, next) => {
 
     const courses = await features.query;
     // Execute the query
-    console.log("courses", courses);
     if (courses.length < 1) {
       return next(new AppError("Course not available for your level", 404));
     }
@@ -165,9 +162,7 @@ const updateCourse = catchAsync(async (req, res, next) => {
 // Delete operation
 const deleteCourse = catchAsync(async (req, res, next) => {
   const courseId = req.params.id;
-  console.log("courseId", courseId);
   const { deleteSize } = req.body;
-  console.log("deleteSize", deleteSize);
   try {
     const session = await mongoose.startSession();
     session.startTransaction();

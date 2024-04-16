@@ -8,7 +8,6 @@ const checkCreatorAccess = async (req, res, next) => {
   try {
     // Assuming you have the creator's ID stored in the employee's database
     const creatorId = req.params.id;
-    console.log("creatorId", creatorId);
     const employee = await Employee.findById(creatorId);
 
     // Check if the authenticated user has the same ID as the creator

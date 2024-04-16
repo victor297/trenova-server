@@ -54,8 +54,6 @@ app.use(mongoSanitize());
 // API routes
 // app.use('*', [RequestLogger.reqLog, Auth.checks, SchemaValidator.validate]);
 app.get("/", (req, res) => {
-  // console.log("req", req.user);
-  // console.log("tokenww", req.cookies.jwt);
   res.send("Server Started");
 });
 app.use("/api/user", userRouter);

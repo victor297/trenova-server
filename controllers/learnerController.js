@@ -43,7 +43,6 @@ const signup = catchAsync(async (req, res, next) => {
   if (req.user && req.user.role === "schoolAdmin") {
     req.body.schoolID = req.user._id;
   }
-  console.log(req.body);
   const username = req.body.schoolID;
   // Check if school with the provided code exists
   const school = await User.findOne({ username: username });
@@ -73,7 +72,6 @@ const login = catchAsync(async (req, res, next) => {
   }
   // 2) Check if learner exists && password is correct
   const learner = await Learner.findOne({ username }).select("+password");
-  console.log("check password", learner);
   if (!learner || !(password === learner.password)) {
     return next(new AppError("Incorrect username or password", 401));
   }
@@ -98,7 +96,6 @@ const login = catchAsync(async (req, res, next) => {
 const logout = async (req, res) => {
   try {
     const learnerId = req.params.id;
-    console.log("learnerId", learnerId);
     // Find the learner by ID and update the maxDevice property
     const updatedLearner = await Learner.findByIdAndUpdate(
       learnerId,
@@ -241,8 +238,6 @@ cron.schedule("0 0 30 8 *", async () => {
 
       await learner.save();
     });
-
-    console.log("All learners promoted successfully!");
   } catch (err) {
     console.error("Error promoting learners:", err);
   }
@@ -259,8 +254,6 @@ cron.schedule("0 0 1 1 *", async () => {
       learner.age += 1;
       await learner.save();
     });
-
-    console.log("All learners' ages incremented successfully!");
   } catch (err) {
     console.error("Error incrementing ages:", err);
   }
@@ -303,7 +296,6 @@ const getAllLearners = catchAsync(async (req, res, next) => {
 
 // Read operation - Get learner by ID
 const getLearnerById = catchAsync(async (req, res, next) => {
-  console.log("hh");
   const learner = await Learner.findById(req.params.id).populate("schoolID");
   if (!learner) {
     return next(new AppError("Learner not found", 404));

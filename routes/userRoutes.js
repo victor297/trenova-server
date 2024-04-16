@@ -20,14 +20,13 @@ router.post("/signup", signup);
 // router.post("/createAdmin", createAdmin);
 router.post("/login", login);
 router.get("/logout", logout);
+router.post("/forgotpassword", forgotPassword);
+router.patch("/resetpassword/:otp", resetPassword);
 router.use(protect);
 router.get("/", users);
 router.get("/:id", user);
 router.patch("/:id", updateUser);
 router.delete("/:id", deleteUser);
-
-router.post("/forgotPassword", forgotPassword);
-router.patch("/resetPassword/:otp", resetPassword);
 
 // Protect all routes after this middleware
 

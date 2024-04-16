@@ -11,7 +11,6 @@ const handleCastErrorDB = (err) => {
 
 // This function handles duplicate field errors thrown by Mongoose
 const handleDuplicateFieldsDB = (err) => {
-  console.log("rtt", err);
   // Check if the error code is 11000 (duplicate key error)
   if (err.code === 11000) {
     // Extract the field name from the error message (assuming it follows a standard format)
@@ -23,7 +22,6 @@ const handleDuplicateFieldsDB = (err) => {
   } else {
     // If it's not a duplicate key error, handle it as before
     const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
-    console.log("error", value);
     const message = `Duplicate field value: ${value}. Please use another value!`;
     return new AppError(message, 400);
   }
