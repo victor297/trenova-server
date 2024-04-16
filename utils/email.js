@@ -5,7 +5,7 @@ module.exports = class Email {
     this.to = user.email;
     this.firstName = user.name.split(" ")[0];
     this.resetToken = resetToken;
-    this.from = `Trenova Support <officialtrenovaacademy@gmail.com>`;
+    this.from = `Trenova Support official`;
   }
 
   newTransport() {
