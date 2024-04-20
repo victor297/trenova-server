@@ -79,7 +79,7 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError("Account Deactivated contact school Admin", 401));
   }
   // 3) If everything ok, send token to client
-  if (!learner || learner.maxDevice === 2) {
+  if (!learner || learner.maxDevice === 2 || learner.maxDevice > 2) {
     return next(
       new AppError(
         "You can only login on 2 device kindly contact school Admin",
