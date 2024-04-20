@@ -71,10 +71,17 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError("name and password is required", 400));
   }
   // 2) Check if learner exists && password is correct
-  const learner = await Learner.findOne({ username }).select("+password");
+  const learner = await Learner.findOne({ username })
+    .select("+password")
+    .populate("schoolID");
+  console.log("learner", learner);
   if (!learner || !(password === learner.password)) {
     return next(new AppError("Incorrect username or password", 401));
   }
+  if (!learner || !learner?.schoolID?.isActivated) {
+    return next(new AppError("Contact School Admin(School Deactivated)", 401));
+  }
+
   if (!learner || !learner.isActivated) {
     return next(new AppError("Account Deactivated contact school Admin", 401));
   }
