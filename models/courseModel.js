@@ -21,7 +21,7 @@ const courseSchema = new mongoose.Schema({
   },
   content: [
     {
-      week: { type: Number, required: true },
+      week: { type: String, required: true },
 
       lessons: [
         {
