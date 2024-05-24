@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema({
     require: true,
     default: false,
   },
+  ispreviousTerm: {
+    type: Boolean,
+    require: true,
+    default: false,
+  },
   availableSpace: {
     type: Number,
     require: true,
