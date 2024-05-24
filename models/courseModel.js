@@ -12,7 +12,6 @@ const courseSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ["video", "e-book", "text-content"],
-    required: true,
   },
   isPublish: {
     type: Boolean,
