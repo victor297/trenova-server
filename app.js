@@ -10,6 +10,7 @@ const userRouter = require("./routes/userRoutes");
 const courseRouter = require("./routes/courseRoute");
 const teacherRouter = require("./routes/teachersRoute");
 const learnerRouter = require("./routes/learnerRoute");
+const desktopRouter = require("./routes/desktopRoute");
 const fileUploadRoute = require("./routes/file-uploadRoute");
 
 const app = express();
@@ -60,7 +61,7 @@ app.use("/api/user", userRouter);
 app.use("/api/teacher", teacherRouter);
 app.use("/api/learner", learnerRouter);
 app.use("/api/course", courseRouter);
-
+app.use("/api/desktops", desktopRouter);
 app.use("/api/misc", fileUploadRoute);
 
 // Handle requests that do not match any of the defined routes
