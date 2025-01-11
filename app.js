@@ -37,6 +37,8 @@ app.use(
       "http://localhost:3000",
       "https://learnnova.ng",
       "https://www.learnnova.ng",
+            "http://localhost:5173",
+
     ], // Add localhost as an allowed origin
     credentials: true,
     optionSuccessStatus: 200,
