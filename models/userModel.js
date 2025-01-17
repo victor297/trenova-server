@@ -85,6 +85,26 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  // New fields
+  termAccess: {
+    type: [Number],
+    default: [], // List of numbers
+  },
+  subjectAccess: {
+    type: [String],
+    default: [], // List of strings
+  },
+  expirationDate: {
+    type: Date,
+  },
+  maximumDevices: {
+    type: Number,
+    default: 1, // Default to 1 device
+  },
+  numOfDevices: {
+    type: Number,
+    default: 0, // Tracks currently connected devices
+  },
 });
 
 userSchema.pre("save", async function (next) {
