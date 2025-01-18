@@ -59,8 +59,8 @@ const getAllCourses = catchAsync(async (req, res, next) => {
     const features = new APIFeatures(Course.find(), req.query)
       .filter() // Apply filtering
       .sort() // Apply sorting
-      .limitfields() // Limit fields
-      .paginate(); // Paginate results
+      .limitfields(); // Limit fields
+    // .paginate(); // Paginate results
 
     const courses = await features.query;
     // Execute the query
