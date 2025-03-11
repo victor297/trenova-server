@@ -6,6 +6,7 @@ const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const Email = require("./../utils/email");
 const otpGenerator = require("otp-generator");
+const Learner = require("../models/learnerModel");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -67,15 +68,109 @@ const login = catchAsync(async (req, res, next) => {
   // 3) If everything ok, send token to client
   createSendToken(user, 200, req, res);
 });
+const logindesktop = catchAsync(async (req, res, next) => {
+  const { username, password } = req.body;
 
-const logout = (req, res) => {
-  res.cookie("jwt", "loggedout", {
-    expires: new Date(Date.now() + 10 * 1000),
-    sameSite: "None",
+  // 1) Check if email and password exist
+  if (!username || !password) {
+    return next(new AppError("username and password is required", 400));
+  }
+  // 2) Check if user exists && password is correct
+  const user = await User.findOne({ username }).select("+password");
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new AppError("Incorrect username or password", 401));
+  }
+  if (!user || !user.isActivated) {
+    return next(new AppError("Account Deactivated contact Trenova", 401));
+  }
 
-    httpOnly: true,
-  });
-  res.status(200).json({ status: "success" });
+  if (user.role === "schoolAdmin") {
+    if (
+      !user ||
+      user.numOfDevices === user.maximumDevices ||
+      user.numOfDevices > user.maximumDevices
+    ) {
+      return next(
+        new AppError(
+          `You can only login on ${user.maximumDevices} device kindly contact Admin`,
+          401
+        )
+      );
+    }
+    // Corrected expiration date check
+    if (user.expirationDate < Date.now()) {
+      return next(
+        new AppError(`Your account has expired. Kindly contact Admin`, 401)
+      );
+    }
+
+    await User.findByIdAndUpdate(user._id, { $inc: { numOfDevices: 1 } });
+  }
+
+  // 3) If everything ok, send token to client
+  createSendToken(user, 200, req, res);
+});
+
+// const logout = (req, res) => {
+//   res.cookie("jwt", "loggedout", {
+//     expires: new Date(Date.now() + 10 * 1000),
+//     sameSite: "None",
+
+//     httpOnly: true,
+//   });
+//   res.status(200).json({ status: "success" });
+// };
+const logout = async (req, res) => {
+  try {
+    const learnerId = req.params.id;
+    const role = req.params.role;
+    console.log(learnerId, role, "role,id");
+
+    if (role === "schoolAdmin") {
+      // Decrement numOfDevices for schoolAdmin
+      const updatedAdmin = await User.findByIdAndUpdate(
+        learnerId,
+        { $inc: { numOfDevices: -1 } }, // Decrement numOfDevices by 1
+        { new: true }
+      );
+
+      if (!updatedAdmin) {
+        return res
+          .status(404)
+          .json({ status: "error", message: "User not found" });
+      }
+
+      // Ensure numOfDevices doesn't go below 0
+      if (updatedAdmin.numOfDevices < 0) {
+        await User.findByIdAndUpdate(learnerId, { numOfDevices: 0 });
+      }
+    } else {
+      // Decrement maxDevice for learner
+      const updatedLearner = await Learner.findByIdAndUpdate(
+        learnerId,
+        { $inc: { maxDevice: -1 } }, // Decrement maxDevice by 1
+        { new: true }
+      );
+
+      if (!updatedLearner) {
+        return res
+          .status(404)
+          .json({ status: "error", message: "Learner not found" });
+      }
+
+      // Ensure maxDevice doesn't go below 0
+      if (updatedLearner.maxDevice < 0) {
+        await Learner.findByIdAndUpdate(learnerId, { maxDevice: 0 });
+      }
+    }
+
+    // Clear the JWT cookie to log the user out
+    res.clearCookie("jwt");
+    res.status(200).json({ status: "success" });
+  } catch (error) {
+    console.error("Error logging out:", error);
+    res.status(500).json({ status: "error", message: "Internal server error" });
+  }
 };
 
 const protect = catchAsync(async (req, res, next) => {
@@ -297,5 +392,6 @@ module.exports = {
   login,
   signup,
   updateUser,
+  logindesktop,
   deleteUser,
 };

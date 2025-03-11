@@ -11,6 +11,7 @@ const {
   user,
   updateUser,
   deleteUser,
+  logindesktop,
 } = require("./../controllers/authController");
 // const { createAdmin } = require("../controllers/userController");
 
@@ -19,7 +20,8 @@ const router = express.Router();
 router.post("/signup", signup);
 // router.post("/createAdmin", createAdmin);
 router.post("/login", login);
-router.get("/logout", logout);
+router.post("/logindesktop", logindesktop);
+router.get("/logout/:id/:role", logout);
 router.post("/forgotpassword", forgotPassword);
 router.patch("/resetpassword/:otp", resetPassword);
 router.use(protect);

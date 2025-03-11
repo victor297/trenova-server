@@ -38,6 +38,30 @@ const createSendToken = (learner, statusCode, req, res) => {
     },
   });
 };
+const createDesktopSendToken = (user, statusCode, req, res) => {
+  const token = signToken(user._id);
+
+  res.cookie("jwt", token, {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    sameSite: "None",
+
+    httpOnly: true,
+    secure: true || req.headers["x-forwarded-proto"] === "https",
+  });
+
+  // Remove password from output
+  user.password = undefined;
+
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
+};
 
 const signup = catchAsync(async (req, res, next) => {
   if (req.user && req.user.role === "schoolAdmin") {
@@ -50,7 +74,7 @@ const signup = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect code provided", 401));
   }
   // Search learners collection based on school ID
-  const learners = await Learner.find({ schoolId: school._id });
+  const learners = await Learner.find({ schoolID: school._id });
   if (learners.length < school.point || learners.length === 0) {
     // Create new learner account
     req.body.schoolID = school._id;
@@ -98,6 +122,80 @@ const login = catchAsync(async (req, res, next) => {
   await learner.save();
   // 3) If everything ok, send token to client
   createSendToken(learner, 200, req, res);
+});
+const loginDesktop = catchAsync(async (req, res, next) => {
+  const { username, password } = req.body;
+
+  // 1) Check if username and password exist
+  if (!username || !password) {
+    return next(new AppError("Username and password are required", 400));
+  }
+
+  // 2) Check if user exists && password is correct
+  const user = await Learner.findOne({ username })
+    .select("+password")
+    .populate("schoolID");
+
+  if (!user || user.password !== password) {
+    return next(new AppError("Incorrect username or password", 401));
+  }
+
+  if (!user.schoolID?.isActivated) {
+    return next(new AppError("Contact School Admin (School Deactivated)", 401));
+  }
+  if (user.schoolID?.expirationDate < Date.now()) {
+    return next(
+      new AppError(
+        `Your school account has expired. Kindly contact School Admin`,
+        401
+      )
+    );
+  }
+
+  if (!user.isActivated) {
+    return next(new AppError("Account Deactivated. Contact School Admin", 401));
+  }
+  // 3) Restrict device logins
+  if (!user || user.maxDevice === 2 || user.maxDevice > 2) {
+    return next(
+      new AppError(
+        "You can only login on 2 device kindly contact school Admin",
+        401
+      )
+    );
+  }
+  user.maxDevice += 1;
+  await user.save();
+
+  // Extract required fields from schoolID and merge into user object
+  const {
+    expirationDate,
+    maximumDevices,
+    numOfDevices,
+    subjectAccess,
+    termAccess,
+    _id,
+  } = user.schoolID;
+
+  // Convert to a plain object and merge fields
+  const userData = user.toObject();
+  Object.assign(userData, {
+    expirationDate,
+    maximumDevices,
+    numOfDevices,
+    subjectAccess,
+    termAccess,
+    schoolID: _id,
+  });
+
+  // Increment maxDevice and save
+  // user.maxDevice += 1;
+  // await user.save();
+
+  // 4) Send response
+
+  console.log(userData, "userData");
+  createDesktopSendToken(userData, 200, req, res);
 });
 
 const logout = async (req, res) => {
@@ -265,6 +363,7 @@ cron.schedule("0 0 1 1 *", async () => {
     console.error("Error incrementing ages:", err);
   }
 });
+
 // Create operation
 // const createLearner = catchAsync(async (req, res, next) => {
 //   const newLearner = await Learner.create(req.body);
@@ -412,6 +511,7 @@ module.exports = {
   getAllLearners,
   getLearnerById,
   updateLearner,
+  loginDesktop,
   protect,
   logout,
   login,

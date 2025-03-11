@@ -11,12 +11,14 @@ const {
   deleteLearner,
   getTopUsersWithLearners,
   updateProfile,
+  loginDesktop,
 } = require("../controllers/learnerController");
 const { protect } = require("../controllers/authController");
 
 const router = express.Router();
 router.post("/", signup);
 router.post("/login", login);
+router.post("/logindesktop", loginDesktop);
 router.get("/logout/:id", logout);
 router.get("/", getAllLearners);
 router.get("/topschools", getTopUsersWithLearners);
