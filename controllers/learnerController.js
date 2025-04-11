@@ -79,7 +79,7 @@ const signup = catchAsync(async (req, res, next) => {
     // Create new learner account
     req.body.schoolID = school._id;
     const newLearner = await Learner.create(req.body);
-    createSendToken(newLearner, 201, req, res);
+    // createSendToken(newLearner, 201, req, res);
   } else {
     return next(
       new AppError("signup limit reached. Contact school admin.", 403)
