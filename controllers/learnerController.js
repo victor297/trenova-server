@@ -82,7 +82,6 @@ const signup = catchAsync(async (req, res, next) => {
     // createSendToken(newLearner, 201, req, res);
     res.status(201).json({
       status: "success",
-      token,
       data: {
         learner: newLearner,
       },
